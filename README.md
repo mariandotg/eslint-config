@@ -113,4 +113,4 @@ export default createESLintConfig({
 
 ## License
 
-ISC 
+MIT 
