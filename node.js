@@ -32,6 +32,17 @@ function convertToFlatConfig(config) {
     delete flatConfig.parser;
   }
   
+  // Convert globals to languageOptions.globals
+  if (flatConfig.globals) {
+    flatConfig.languageOptions = flatConfig.languageOptions || {};
+    flatConfig.languageOptions.globals = flatConfig.languageOptions.globals || {};
+    
+    // Merge globals
+    Object.assign(flatConfig.languageOptions.globals, flatConfig.globals);
+    
+    delete flatConfig.globals;
+  }
+  
   // Convert env to languageOptions.globals
   if (flatConfig.env) {
     flatConfig.languageOptions = flatConfig.languageOptions || {};
