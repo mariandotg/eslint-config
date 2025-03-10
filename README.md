@@ -118,8 +118,9 @@ This package is fully compatible with ESLint v9's flat config system. It automat
 - Converting `parserOptions` to `languageOptions.parserOptions`
 - Converting `parser` to `languageOptions.parser`
 - Converting `env` settings to appropriate `languageOptions.globals`
+- Converting `plugins` arrays to the required object format with actual plugin instances
 
-This ensures you can use this configuration with ESLint v9 without any compatibility issues.
+This ensures you can use this configuration with ESLint v9 without any compatibility issues, even when using plugins that haven't been updated to the flat config format yet.
 
 ## License
 

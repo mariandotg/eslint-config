@@ -7,6 +7,9 @@ import pluginA11y from "eslint-plugin-jsx-a11y";
 import pluginUnicorn from "eslint-plugin-unicorn";
 import pluginSort from "eslint-plugin-simple-import-sort";
 import standardConfig from "eslint-config-standard";
+import pluginImport from "eslint-plugin-import";
+import pluginN from "eslint-plugin-n";
+import pluginPromise from "eslint-plugin-promise";
 import reactConfig from "./react.js";
 import nodeConfig from "./node.js";
 
@@ -24,6 +27,20 @@ const DEFAULT_OPTIONS = {
   performance: false,
   importSort: false,
   ignoreFiles: ["node_modules", "dist", ".next", "build", "coverage"]
+};
+
+/**
+ * Map of plugin names to their actual plugin objects
+ */
+const PLUGIN_MAP = {
+  'react': pluginReact,
+  'jsx-a11y': pluginA11y,
+  'security': pluginSecurity,
+  'unicorn': pluginUnicorn,
+  'simple-import-sort': pluginSort,
+  'import': pluginImport,
+  'n': pluginN,
+  'promise': pluginPromise
 };
 
 /**
@@ -65,6 +82,24 @@ function convertToFlatConfig(config) {
     }
     
     delete flatConfig.env;
+  }
+  
+  // Convert plugins array to plugins object
+  if (Array.isArray(flatConfig.plugins)) {
+    const pluginsObject = {};
+    
+    flatConfig.plugins.forEach(pluginName => {
+      // Handle prefixed plugins (eslint-plugin-*)
+      const shortName = pluginName.replace(/^eslint-plugin-/, '');
+      
+      if (PLUGIN_MAP[shortName]) {
+        pluginsObject[shortName] = PLUGIN_MAP[shortName];
+      } else {
+        console.warn(`Plugin ${pluginName} not found in plugin map. You may need to add it to the PLUGIN_MAP.`);
+      }
+    });
+    
+    flatConfig.plugins = pluginsObject;
   }
   
   return flatConfig;

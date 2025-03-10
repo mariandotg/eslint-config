@@ -1,5 +1,14 @@
 import globals from "globals";
 import pluginSecurity from "eslint-plugin-security";
+import pluginN from "eslint-plugin-n";
+
+/**
+ * Map of plugin names to their actual plugin objects
+ */
+const PLUGIN_MAP = {
+  'security': pluginSecurity,
+  'n': pluginN
+};
 
 /**
  * Helper function to convert legacy ESLint config format to flat config format
@@ -40,6 +49,24 @@ function convertToFlatConfig(config) {
     }
     
     delete flatConfig.env;
+  }
+  
+  // Convert plugins array to plugins object
+  if (Array.isArray(flatConfig.plugins)) {
+    const pluginsObject = {};
+    
+    flatConfig.plugins.forEach(pluginName => {
+      // Handle prefixed plugins (eslint-plugin-*)
+      const shortName = pluginName.replace(/^eslint-plugin-/, '');
+      
+      if (PLUGIN_MAP[shortName]) {
+        pluginsObject[shortName] = PLUGIN_MAP[shortName];
+      } else {
+        console.warn(`Plugin ${pluginName} not found in plugin map. You may need to add it to the PLUGIN_MAP.`);
+      }
+    });
+    
+    flatConfig.plugins = pluginsObject;
   }
   
   return flatConfig;
