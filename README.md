@@ -27,13 +27,13 @@ pnpm add --save-dev @mariandotg/eslint-config
 Create an `eslint.config.js` file in your project root:
 
 ```javascript
-const { createESLintConfig } = require("@mariandotg/eslint-config");
+import { createESLintConfig } from "@mariandotg/eslint-config";
 
 // Use with default options
-module.exports = createESLintConfig();
+export default createESLintConfig();
 
 // Or customize as needed
-module.exports = createESLintConfig({
+export default createESLintConfig({
   // Enable only what you need
   react: true,
   typescript: true,
@@ -60,9 +60,9 @@ module.exports = createESLintConfig({
 You can customize the list of ignored files:
 
 ```javascript
-const { createESLintConfig } = require("@mariandotg/eslint-config");
+import { createESLintConfig } from "@mariandotg/eslint-config";
 
-module.exports = createESLintConfig({
+export default createESLintConfig({
   // Your other options...
   
   // Custom ignore list (replaces the default list)
@@ -76,10 +76,10 @@ You can also import specific configurations directly:
 
 ```javascript
 // For React projects
-const reactConfig = require("@mariandotg/eslint-config/react");
+import reactConfig from "@mariandotg/eslint-config/react";
 
 // For Node.js projects
-const nodeConfig = require("@mariandotg/eslint-config/node");
+import nodeConfig from "@mariandotg/eslint-config/node";
 ```
 
 ## Examples
@@ -87,9 +87,9 @@ const nodeConfig = require("@mariandotg/eslint-config/node");
 ### React + TypeScript Project
 
 ```javascript
-const { createESLintConfig } = require("@mariandotg/eslint-config");
+import { createESLintConfig } from "@mariandotg/eslint-config";
 
-module.exports = createESLintConfig({
+export default createESLintConfig({
   react: true,
   typescript: true,
   typescriptStrict: true,
@@ -101,9 +101,9 @@ module.exports = createESLintConfig({
 ### Node.js API Project with StandardJS
 
 ```javascript
-const { createESLintConfig } = require("@mariandotg/eslint-config");
+import { createESLintConfig } from "@mariandotg/eslint-config";
 
-module.exports = createESLintConfig({
+export default createESLintConfig({
   node: true,
   typescript: true,
   standard: true,

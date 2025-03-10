@@ -1,7 +1,8 @@
 {
   "name": "@mariandotg/eslint-config",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Modular ESLint configuration for various project types",
+  "type": "module",
   "main": "index.js",
   "exports": {
     ".": "./index.js",
