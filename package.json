@@ -1,6 +1,6 @@
 {
   "name": "@mariandotg/eslint-config",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Modular ESLint configuration for various project types",
   "type": "module",
   "main": "index.js",
@@ -15,6 +15,10 @@
   "keywords": [],
   "author": "Mariano Guillaume",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mariandotg/eslint-config.git"
+  },
   "devDependencies": {
     "eslint": "^9.22.0",
     "eslint-plugin-import": "^2.31.0",
