@@ -180,8 +180,15 @@ export function createESLintConfig(userOptions = {}) {
   }
   
   if (options.performance) {
-    config.push({ plugins: { unicorn: pluginUnicorn } });
+    // Get the unicorn recommended config and convert it
     const flatUnicornConfig = convertToFlatConfig(pluginUnicorn.configs.recommended);
+    
+    // Add the plugin reference only if it doesn't already have one
+    if (!flatUnicornConfig.plugins || !flatUnicornConfig.plugins.unicorn) {
+      flatUnicornConfig.plugins = flatUnicornConfig.plugins || {};
+      flatUnicornConfig.plugins.unicorn = pluginUnicorn;
+    }
+    
     config.push(flatUnicornConfig);
   }
   
