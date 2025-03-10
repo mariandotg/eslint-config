@@ -1,0 +1,32 @@
+{
+  "name": "@mariandotg/eslint-config",
+  "version": "1.0.0",
+  "description": "Modular ESLint configuration for various project types",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./react": "./react.js",
+    "./node": "./node.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Mariano Guillaume",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.22.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-n": "^17.16.2",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-unicorn": "^57.0.0",
+    "lint-staged": "^15.4.3",
+    "eslint-plugin-react": "^7.37.4",
+    "typescript-eslint": "^8.26.0"
+  }
+}
