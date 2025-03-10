@@ -1,14 +1,14 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
-import pluginSecurity from "eslint-plugin-security";
-import pluginA11y from "eslint-plugin-jsx-a11y";
-import pluginUnicorn from "eslint-plugin-unicorn";
-import pluginSort from "eslint-plugin-simple-import-sort";
-import standardConfig from "eslint-config-standard";
-import reactConfig from "./react.js";
-import nodeConfig from "./node.js";
+const globals = require("globals");
+const pluginJs = require("@eslint/js");
+const tseslint = require("typescript-eslint");
+const pluginReact = require("eslint-plugin-react");
+const pluginSecurity = require("eslint-plugin-security");
+const pluginA11y = require("eslint-plugin-jsx-a11y");
+const pluginUnicorn = require("eslint-plugin-unicorn");
+const pluginSort = require("eslint-plugin-simple-import-sort");
+const standardConfig = require("eslint-config-standard");
+const reactConfig = require("./react.js");
+const nodeConfig = require("./node.js");
 
 /**
  * Default configuration options
@@ -41,7 +41,7 @@ const DEFAULT_OPTIONS = {
  * @param {string[]} [options.ignoreFiles] - List of files/directories to ignore
  * @returns {import('eslint').Linter.FlatConfig[]} The ESLint configuration
  */
-export function createESLintConfig(userOptions = {}) {
+function createESLintConfig(userOptions = {}) {
   // Merge user options with defaults
   const options = { ...DEFAULT_OPTIONS, ...userOptions };
   
@@ -105,5 +105,7 @@ export function createESLintConfig(userOptions = {}) {
   return config;
 }
 
-// Default export for convenience
-export default createESLintConfig;
+// Export the factory function
+module.exports = createESLintConfig;
+// Also export as a named export for backward compatibility
+module.exports.createESLintConfig = createESLintConfig;

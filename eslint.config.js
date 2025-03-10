@@ -1,10 +1,10 @@
-import { createESLintConfig } from "./index.js";
+const { createESLintConfig } = require("./index.js");
 
 /**
  * Example usage of the ESLint configuration factory
  * This file demonstrates how to use the configuration in a project
  */
-export default createESLintConfig({
+module.exports = createESLintConfig({
   // Enable features as needed
   react: true,
   node: true,
