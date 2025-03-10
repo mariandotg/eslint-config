@@ -27,6 +27,50 @@ const DEFAULT_OPTIONS = {
 };
 
 /**
+ * Helper function to convert legacy ESLint config format to flat config format
+ * @param {Object} config - The config object to convert
+ * @returns {Object} - The converted config object
+ */
+function convertToFlatConfig(config) {
+  const flatConfig = { ...config };
+  
+  // Convert parserOptions to languageOptions.parserOptions
+  if (flatConfig.parserOptions) {
+    flatConfig.languageOptions = flatConfig.languageOptions || {};
+    flatConfig.languageOptions.parserOptions = flatConfig.parserOptions;
+    delete flatConfig.parserOptions;
+  }
+  
+  // Convert parser to languageOptions.parser
+  if (flatConfig.parser) {
+    flatConfig.languageOptions = flatConfig.languageOptions || {};
+    flatConfig.languageOptions.parser = flatConfig.parser;
+    delete flatConfig.parser;
+  }
+  
+  // Convert env to languageOptions.globals
+  if (flatConfig.env) {
+    flatConfig.languageOptions = flatConfig.languageOptions || {};
+    flatConfig.languageOptions.globals = flatConfig.languageOptions.globals || {};
+    
+    // Convert common environments
+    if (flatConfig.env.browser) {
+      Object.assign(flatConfig.languageOptions.globals, globals.browser);
+    }
+    if (flatConfig.env.node) {
+      Object.assign(flatConfig.languageOptions.globals, globals.node);
+    }
+    if (flatConfig.env.es6 || flatConfig.env.es2015) {
+      Object.assign(flatConfig.languageOptions.globals, globals.es2015);
+    }
+    
+    delete flatConfig.env;
+  }
+  
+  return flatConfig;
+}
+
+/**
  * Creates a customized ESLint configuration based on provided options
  * @param {Object} options - Configuration options
  * @param {boolean} [options.react=false] - Enable React-specific rules
@@ -54,7 +98,9 @@ export function createESLintConfig(userOptions = {}) {
 
   // Add StandardJS formatting if enabled
   if (options.standard) {
-    config.push(standardConfig);
+    // Convert standard config to flat config format if needed
+    const flatStandardConfig = convertToFlatConfig(standardConfig);
+    config.push(flatStandardConfig);
   }
 
   // Add TypeScript rules if enabled
@@ -77,17 +123,20 @@ export function createESLintConfig(userOptions = {}) {
   
   if (options.security && !options.node) {
     // Add security plugin only if not already added via node config
-    config.push(pluginSecurity.configs.recommended);
+    const flatSecurityConfig = convertToFlatConfig(pluginSecurity.configs.recommended);
+    config.push(flatSecurityConfig);
   }
   
   if (options.accessibility && !options.react) {
     // Add accessibility plugin only if not already added via react config
-    config.push(pluginA11y.configs.recommended);
+    const flatA11yConfig = convertToFlatConfig(pluginA11y.configs.recommended);
+    config.push(flatA11yConfig);
   }
   
   if (options.performance) {
     config.push({ plugins: { unicorn: pluginUnicorn } });
-    config.push(pluginUnicorn.configs.recommended);
+    const flatUnicornConfig = convertToFlatConfig(pluginUnicorn.configs.recommended);
+    config.push(flatUnicornConfig);
   }
   
   if (options.importSort) {

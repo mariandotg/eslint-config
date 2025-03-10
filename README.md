@@ -1,6 +1,6 @@
 # Modular ESLint Configuration
 
-A modular ESLint configuration package that can be customized for different project types.
+A modular ESLint configuration package that can be customized for different project types. Compatible with ESLint v9's flat config system.
 
 ## Installation
 
@@ -110,6 +110,16 @@ export default createESLintConfig({
   ignoreFiles: ["node_modules", "dist", "logs"]
 });
 ```
+
+## ESLint v9 Compatibility
+
+This package is fully compatible with ESLint v9's flat config system. It automatically converts any legacy configuration formats from plugins to the new flat config format, handling:
+
+- Converting `parserOptions` to `languageOptions.parserOptions`
+- Converting `parser` to `languageOptions.parser`
+- Converting `env` settings to appropriate `languageOptions.globals`
+
+This ensures you can use this configuration with ESLint v9 without any compatibility issues.
 
 ## License
 
