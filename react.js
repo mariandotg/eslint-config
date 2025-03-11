@@ -90,6 +90,14 @@ function convertToFlatConfig(config) {
  * Includes React best practices and accessibility rules
  */
 export default [
+  // React settings configuration
+  {
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+  },
   convertToFlatConfig(pluginReact.configs.flat.recommended), // React best practices
   convertToFlatConfig(pluginA11y.configs.recommended), // Enforce accessibility best practices
 ];
