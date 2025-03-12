@@ -1,17 +1,13 @@
-import globals from "globals";
+import { FlatCompat } from "@eslint/eslintrc";
 import pluginJs from "@eslint/js";
+import globals from "globals";
+import path from "path";
 import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
-import pluginSecurity from "eslint-plugin-security";
-import pluginA11y from "eslint-plugin-jsx-a11y";
-import pluginUnicorn from "eslint-plugin-unicorn";
-import pluginSort from "eslint-plugin-simple-import-sort";
-import standardConfig from "eslint-config-standard";
-import pluginImport from "eslint-plugin-import";
-import pluginN from "eslint-plugin-n";
-import pluginPromise from "eslint-plugin-promise";
-import reactConfig from "./react.js";
-import nodeConfig from "./node.js";
+import { fileURLToPath } from "url";
+
+// Setup for FlatCompat
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Default configuration options
@@ -26,95 +22,12 @@ const DEFAULT_OPTIONS = {
   accessibility: false,
   performance: false,
   importSort: false,
-  ignoreFiles: ["node_modules", "dist", ".next", "build", "coverage"]
+  ignoreFiles: ["node_modules", "dist", ".next", "build", "coverage"],
+  customPlugins: [],       // For adding custom plugins
+  customExtends: [],       // For extending configs
+  customConfigs: [],       // For adding custom flat configurations
+  customRules: {}          // For adding specific rules
 };
-
-/**
- * Map of plugin names to their actual plugin objects
- */
-const PLUGIN_MAP = {
-  'react': pluginReact,
-  'jsx-a11y': pluginA11y,
-  'security': pluginSecurity,
-  'unicorn': pluginUnicorn,
-  'simple-import-sort': pluginSort,
-  'import': pluginImport,
-  'n': pluginN,
-  'promise': pluginPromise
-};
-
-/**
- * Helper function to convert legacy ESLint config format to flat config format
- * @param {Object} config - The config object to convert
- * @returns {Object} - The converted config object
- */
-function convertToFlatConfig(config) {
-  const flatConfig = { ...config };
-  
-  // Convert parserOptions to languageOptions.parserOptions
-  if (flatConfig.parserOptions) {
-    flatConfig.languageOptions = flatConfig.languageOptions || {};
-    flatConfig.languageOptions.parserOptions = flatConfig.parserOptions;
-    delete flatConfig.parserOptions;
-  }
-  
-  // Convert parser to languageOptions.parser
-  if (flatConfig.parser) {
-    flatConfig.languageOptions = flatConfig.languageOptions || {};
-    flatConfig.languageOptions.parser = flatConfig.parser;
-    delete flatConfig.parser;
-  }
-  
-  // Convert globals to languageOptions.globals
-  if (flatConfig.globals) {
-    flatConfig.languageOptions = flatConfig.languageOptions || {};
-    flatConfig.languageOptions.globals = flatConfig.languageOptions.globals || {};
-    
-    // Merge globals
-    Object.assign(flatConfig.languageOptions.globals, flatConfig.globals);
-    
-    delete flatConfig.globals;
-  }
-  
-  // Convert env to languageOptions.globals
-  if (flatConfig.env) {
-    flatConfig.languageOptions = flatConfig.languageOptions || {};
-    flatConfig.languageOptions.globals = flatConfig.languageOptions.globals || {};
-    
-    // Convert common environments
-    if (flatConfig.env.browser) {
-      Object.assign(flatConfig.languageOptions.globals, globals.browser);
-    }
-    if (flatConfig.env.node) {
-      Object.assign(flatConfig.languageOptions.globals, globals.node);
-    }
-    if (flatConfig.env.es6 || flatConfig.env.es2015) {
-      Object.assign(flatConfig.languageOptions.globals, globals.es2015);
-    }
-    
-    delete flatConfig.env;
-  }
-  
-  // Convert plugins array to plugins object
-  if (Array.isArray(flatConfig.plugins)) {
-    const pluginsObject = {};
-    
-    flatConfig.plugins.forEach(pluginName => {
-      // Handle prefixed plugins (eslint-plugin-*)
-      const shortName = pluginName.replace(/^eslint-plugin-/, '');
-      
-      if (PLUGIN_MAP[shortName]) {
-        pluginsObject[shortName] = PLUGIN_MAP[shortName];
-      } else {
-        console.warn(`Plugin ${pluginName} not found in plugin map. You may need to add it to the PLUGIN_MAP.`);
-      }
-    });
-    
-    flatConfig.plugins = pluginsObject;
-  }
-  
-  return flatConfig;
-}
 
 /**
  * Creates a customized ESLint configuration based on provided options
@@ -129,11 +42,23 @@ function convertToFlatConfig(config) {
  * @param {boolean} [options.performance=false] - Enable performance rules
  * @param {boolean} [options.importSort=false] - Enable import sorting
  * @param {string[]} [options.ignoreFiles] - List of files/directories to ignore
+ * @param {string[]} [options.customPlugins] - Custom plugins to include
+ * @param {string[]} [options.customExtends] - Custom configs to extend
+ * @param {Object[]} [options.customConfigs] - Custom flat configurations to include
+ * @param {Object} [options.customRules] - Custom ESLint rules to include
+ * @param {string} [options.configDir] - Directory to use as base for resolving configs (defaults to process.cwd())
  * @returns {import('eslint').Linter.FlatConfig[]} The ESLint configuration
  */
 export function createESLintConfig(userOptions = {}) {
   // Merge user options with defaults
   const options = { ...DEFAULT_OPTIONS, ...userOptions };
+  
+  // Create FlatCompat instance with the appropriate base directory
+  const baseDirectory = options.configDir || process.cwd();
+  const compat = new FlatCompat({
+    baseDirectory,
+    recommendedConfig: pluginJs.configs.recommended
+  });
   
   /** @type {import('eslint').Linter.FlatConfig[]} */
   const config = [
@@ -144,9 +69,7 @@ export function createESLintConfig(userOptions = {}) {
 
   // Add StandardJS formatting if enabled
   if (options.standard) {
-    // Convert standard config to flat config format if needed
-    const flatStandardConfig = convertToFlatConfig(standardConfig);
-    config.push(flatStandardConfig);
+    config.push(...compat.extends("standard"));
   }
 
   // Add TypeScript rules if enabled
@@ -159,43 +82,66 @@ export function createESLintConfig(userOptions = {}) {
     }
   }
   
+  // Add React rules if enabled
   if (options.react) {
-    config.push(...reactConfig);
-  }
-  
-  if (options.node) {
-    config.push(...nodeConfig);
-  }
-  
-  if (options.security && !options.node) {
-    // Add security plugin only if not already added via node config
-    const flatSecurityConfig = convertToFlatConfig(pluginSecurity.configs.recommended);
-    config.push(flatSecurityConfig);
-  }
-  
-  if (options.accessibility && !options.react) {
-    // Add accessibility plugin only if not already added via react config
-    const flatA11yConfig = convertToFlatConfig(pluginA11y.configs.recommended);
-    config.push(flatA11yConfig);
-  }
-  
-  if (options.performance) {
-    // Get the unicorn recommended config and convert it
-    const flatUnicornConfig = convertToFlatConfig(pluginUnicorn.configs.recommended);
+    config.push(...compat.extends("plugin:react/recommended"));
+    config.push(...compat.extends("plugin:react-hooks/recommended"));
     
-    // Add the plugin reference only if it doesn't already have one
-    if (!flatUnicornConfig.plugins || !flatUnicornConfig.plugins.unicorn) {
-      flatUnicornConfig.plugins = flatUnicornConfig.plugins || {};
-      flatUnicornConfig.plugins.unicorn = pluginUnicorn;
+    if (options.accessibility) {
+      config.push(...compat.extends("plugin:jsx-a11y/recommended"));
     }
-    
-    config.push(flatUnicornConfig);
+  } else if (options.accessibility) {
+    // Add accessibility rules without React if specified
+    config.push(...compat.extends("plugin:jsx-a11y/recommended"));
   }
   
+  // Add Node.js rules if enabled
+  if (options.node) {
+    config.push(...compat.extends("plugin:n/recommended"));
+  }
+  
+  // Add security rules if enabled
+  if (options.security) {
+    config.push(...compat.extends("plugin:security/recommended"));
+  }
+  
+  // Add performance rules if enabled
+  if (options.performance) {
+    config.push(...compat.extends("plugin:unicorn/recommended"));
+  }
+  
+  // Add import sorting if enabled
   if (options.importSort) {
-    config.push({ 
-      plugins: { "simple-import-sort": pluginSort }, 
-      rules: { "simple-import-sort/imports": "error" } 
+    config.push(...compat.plugins("simple-import-sort"));
+    config.push({
+      rules: {
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error"
+      }
+    });
+  }
+
+  // Add custom plugins
+  if (options.customPlugins && options.customPlugins.length > 0) {
+    config.push(...compat.plugins(...options.customPlugins));
+  }
+
+  // Add custom extends
+  if (options.customExtends && options.customExtends.length > 0) {
+    for (const extendConfig of options.customExtends) {
+      config.push(...compat.extends(extendConfig));
+    }
+  }
+
+  // Add custom flat configurations
+  if (options.customConfigs && options.customConfigs.length > 0) {
+    config.push(...options.customConfigs);
+  }
+
+  // Add custom rules
+  if (options.customRules && Object.keys(options.customRules).length > 0) {
+    config.push({
+      rules: options.customRules
     });
   }
 
