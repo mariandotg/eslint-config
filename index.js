@@ -32,15 +32,15 @@ const DEFAULT_OPTIONS = {
 /**
  * Creates a customized ESLint configuration based on provided options
  * @param {Object} options - Configuration options
- * @param {boolean} [options.react=false] - Enable React-specific rules
- * @param {boolean} [options.node=false] - Enable Node.js-specific rules
- * @param {boolean} [options.typescript=false] - Enable TypeScript rules
- * @param {boolean} [options.typescriptStrict=false] - Enable TypeScript strict rules (requires typescript:true)
- * @param {boolean} [options.standard=false] - Enable StandardJS formatting rules
- * @param {boolean} [options.security=false] - Enable security rules
- * @param {boolean} [options.accessibility=false] - Enable accessibility rules
- * @param {boolean} [options.performance=false] - Enable performance rules
- * @param {boolean} [options.importSort=false] - Enable import sorting
+ * @param {boolean} [options.react=false] - Enable React-specific rules (eslint-plugin-react, eslint-plugin-react-hooks)
+ * @param {boolean} [options.node=false] - Enable Node.js-specific rules (eslint-plugin-n)
+ * @param {boolean} [options.typescript=false] - Enable TypeScript rules (typescript-eslint)
+ * @param {boolean} [options.typescriptStrict=false] - Enable TypeScript strict rules (typescript-eslint/strict)
+ * @param {boolean} [options.standard=false] - Enable StandardJS formatting rules (eslint-config-standard)
+ * @param {boolean} [options.security=false] - Enable security rules (eslint-plugin-security)
+ * @param {boolean} [options.accessibility=false] - Enable accessibility rules (eslint-plugin-jsx-a11y)
+ * @param {boolean} [options.performance=false] - Enable performance rules (eslint-plugin-unicorn)
+ * @param {boolean} [options.importSort=false] - Enable import sorting (eslint-plugin-simple-import-sort)
  * @param {string[]} [options.ignoreFiles] - List of files/directories to ignore
  * @param {string[]} [options.customPlugins] - Custom plugins to include
  * @param {string[]} [options.customExtends] - Custom configs to extend
@@ -69,7 +69,7 @@ export function createESLintConfig(userOptions = {}) {
 
   // Add StandardJS formatting if enabled
   if (options.standard) {
-    config.push(...compat.extends("standard"));
+    config.push(...compat.extends("eslint-config-standard"));
   }
 
   // Add TypeScript rules if enabled
@@ -84,6 +84,15 @@ export function createESLintConfig(userOptions = {}) {
   
   // Add React rules if enabled
   if (options.react) {
+    // Add React settings for version detection
+    config.push({
+      settings: {
+        react: {
+          version: "detect"
+        }
+      }
+    });
+    
     config.push(...compat.extends("plugin:react/recommended"));
     config.push(...compat.extends("plugin:react-hooks/recommended"));
     
