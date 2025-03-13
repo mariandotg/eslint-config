@@ -95,12 +95,10 @@ export function createESLintConfig(userOptions = {}) {
     
     config.push(...compat.extends("plugin:react/recommended"));
     config.push(...compat.extends("plugin:react-hooks/recommended"));
-    
-    if (options.accessibility) {
-      config.push(...compat.extends("plugin:jsx-a11y/recommended"));
-    }
-  } else if (options.accessibility) {
-    // Add accessibility rules without React if specified
+  } 
+  
+  if (options.accessibility) {
+    // Add accessibility rules if specified
     config.push(...compat.extends("plugin:jsx-a11y/recommended"));
   }
   
